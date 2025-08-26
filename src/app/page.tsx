@@ -1,28 +1,25 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import * as THREE from "three";
+import GearButton from "@/components/ui/GearButton";
 
-export default function AnimatedThemeToggle() {
-  const [isDark, setIsDark] = useState(false);
-  const [isAnimating, setIsAnimating] = useState(false);
+// Theme Toggle Component
+function ThemeToggle({
+  isDark,
+  setIsDark,
+  isAnimating,
+  setIsAnimating,
+}: {
+  isDark: boolean;
+  setIsDark: (dark: boolean) => void;
+  isAnimating: boolean;
+  setIsAnimating: (animating: boolean) => void;
+}) {
   const mountRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   const cameraRef = useRef<THREE.Camera | null>(null);
   const animationIdRef = useRef<number | null>(null);
-
-  // Initialize theme from localStorage or system preference
-  useEffect(() => {
-    const savedTheme = localStorage.getItem("theme");
-    const systemPrefersDark = window.matchMedia(
-      "(prefers-color-scheme: dark)"
-    ).matches;
-
-    const shouldBeDark =
-      savedTheme === "dark" || (!savedTheme && systemPrefersDark);
-    setIsDark(shouldBeDark);
-    updateTheme(shouldBeDark);
-  }, []);
 
   // Update theme in DOM and localStorage
   const updateTheme = (dark: boolean) => {
@@ -40,7 +37,6 @@ export default function AnimatedThemeToggle() {
   useEffect(() => {
     if (!mountRef.current) return;
 
-    // Scene setup
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(
       75,
@@ -51,17 +47,15 @@ export default function AnimatedThemeToggle() {
     const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
 
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setClearColor(0x000000, 0); // Transparent background
+    renderer.setClearColor(0x000000, 0);
     camera.position.z = 5;
 
     mountRef.current.appendChild(renderer.domElement);
 
-    // Store refs
     sceneRef.current = scene;
     rendererRef.current = renderer;
     cameraRef.current = camera;
 
-    // Handle resize
     const handleResize = () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
@@ -71,7 +65,12 @@ export default function AnimatedThemeToggle() {
 
     return () => {
       window.removeEventListener("resize", handleResize);
-      mountRef.current?.removeChild(renderer.domElement);
+      if (
+        mountRef.current &&
+        renderer.domElement.parentNode === mountRef.current
+      ) {
+        mountRef.current.removeChild(renderer.domElement);
+      }
       renderer.dispose();
     };
   }, []);
@@ -79,8 +78,6 @@ export default function AnimatedThemeToggle() {
   // Create bat geometry - responsive sizing
   const createBat = (x: number, y: number) => {
     const batGroup = new THREE.Group();
-
-    // Scale based on screen size
     const isMobile = window.innerWidth < 768;
     const scaleFactor = isMobile ? 1.2 : 2;
 
@@ -138,8 +135,6 @@ export default function AnimatedThemeToggle() {
   // Create butterfly geometry - responsive sizing
   const createButterfly = (x: number, y: number) => {
     const butterflyGroup = new THREE.Group();
-
-    // Scale based on screen size
     const isMobile = window.innerWidth < 768;
     const scaleFactor = isMobile ? 0.8 : 1.2;
 
@@ -201,9 +196,8 @@ export default function AnimatedThemeToggle() {
       wingFlap: number;
     }> = [];
     const isMobile = window.innerWidth < 768;
-    const numBats = isMobile ? 8 : 12; // Fewer bats on mobile for performance
+    const numBats = isMobile ? 8 : 12;
 
-    // Convert button position to Three.js coordinates
     const buttonX =
       ((buttonRect.left + buttonRect.width / 2) / window.innerWidth) * 2 - 1;
     const buttonY =
@@ -362,22 +356,18 @@ export default function AnimatedThemeToggle() {
     setIsDark(newTheme);
     updateTheme(newTheme);
 
-    // Get button position
     const buttonRect = e.currentTarget.getBoundingClientRect();
 
-    // Cancel any existing animation
     if (animationIdRef.current) {
       cancelAnimationFrame(animationIdRef.current);
     }
 
-    // Clear existing objects
     if (sceneRef.current) {
       while (sceneRef.current.children.length > 0) {
         sceneRef.current.remove(sceneRef.current.children[0]);
       }
     }
 
-    // Trigger appropriate animation
     setTimeout(() => {
       if (newTheme) {
         animateBats(buttonRect);
@@ -388,47 +378,36 @@ export default function AnimatedThemeToggle() {
   };
 
   return (
-    <div
-      className={`min-h-screen transition-colors duration-500 ${
-        isDark ? "bg-gray-900" : "bg-blue-50"
-      }`}
-    >
-      {/* Three.js Canvas - Positioned absolutely to overlay everything */}
+    <>
       <div
         ref={mountRef}
         className="fixed inset-0 pointer-events-none z-10"
         style={{ zIndex: 10 }}
       />
 
-      {/* Main Content */}
-      <div className="relative z-20 p-4 sm:p-6 lg:p-8">
-        {/* Theme Toggle Button - Responsive */}
-        <div className="fixed top-3 right-3 sm:top-4 sm:right-4 md:top-6 md:right-6 z-30">
-          <button
-            onClick={handleToggle}
-            disabled={isAnimating}
-            className={`
-              relative px-3 py-2 sm:px-4 sm:py-2 md:px-6 md:py-3 
-              text-sm sm:text-base 
-              rounded-full font-medium transition-all duration-300 shadow-lg
-              ${
-                isDark
-                  ? "bg-purple-900 text-yellow-100 hover:bg-purple-800 border-2 border-purple-700"
-                  : "bg-yellow-400 text-gray-900 hover:bg-yellow-300 border-2 border-yellow-500"
-              }
-              ${isAnimating ? "scale-110" : "hover:scale-105"}
-            `}
-          >
-            <span className="hidden sm:inline">
-              {isDark ? "🦋 Switch to Light" : "🦇 Switch to Dark"}
-            </span>
-            <span className="sm:hidden">{isDark ? "🦋" : "🦇"}</span>
-          </button>
-        </div>
+      <div className="fixed top-3 right-3 sm:top-4 sm:right-4 md:top-6 md:right-6 z-30">
+        <GearButton
+          isDark={isDark}
+          isAnimating={isAnimating}
+          onClick={handleToggle}
+        />
+      </div>
+    </>
+  );
+}
 
-        {/* Sample Content - Fully Responsive */}
+// Hero Section Component
+function HeroSection({ isDark }: { isDark: boolean }) {
+  return (
+    <section
+      className={`min-h-screen transition-colors duration-500 ${
+        isDark
+          ? "bg-gradient-to-b from-amber-950 to-red-950"
+          : "bg-gradient-to-b from-amber-50 to-orange-50"
+      }`}
+    >
+      <div className="relative z-20 p-4 sm:p-6 lg:p-8">
         <main className="max-w-7xl mx-auto pt-16 sm:pt-20 md:pt-24">
-          {/* Hero Section */}
           <div className="text-center mb-8 sm:mb-12 lg:mb-16">
             <h1
               className={`
@@ -450,7 +429,6 @@ export default function AnimatedThemeToggle() {
             </p>
           </div>
 
-          {/* Main Content Card */}
           <div
             className={`
             p-4 sm:p-6 lg:p-8 rounded-xl transition-all duration-500 
@@ -463,15 +441,11 @@ export default function AnimatedThemeToggle() {
           `}
           >
             <h2 className="text-2xl sm:text-3xl font-semibold mb-3 sm:mb-4">
-              Theme Toggle Demo
+              Welcome to My Victorian Workshop
             </h2>
             <p className="text-base sm:text-lg mb-3 sm:mb-4 leading-relaxed">
-              Click the theme toggle button to see the magic happen!
-              <span className="block sm:inline">
-                {isDark
-                  ? " Bats will dramatically explode from the button."
-                  : " Gentle butterflies will float away."}
-              </span>
+              Step into a world where steam-powered innovation meets modern web
+              development.
             </p>
             <p
               className={`
@@ -479,53 +453,393 @@ export default function AnimatedThemeToggle() {
               ${isDark ? "text-gray-400" : "text-gray-600"}
             `}
             >
-              This demo uses Three.js for smooth 3D animations that adapt to
-              your screen size. On mobile devices, fewer creatures spawn for
-              better performance.
+              Scroll down to explore my mechanical marvels and digital
+              contraptions.
             </p>
-
-            {/* Responsive Grid for Additional Content */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mt-6 sm:mt-8">
-              <div
-                className={`p-3 sm:p-4 rounded-lg ${
-                  isDark ? "bg-gray-700" : "bg-gray-50"
-                }`}
-              >
-                <h3 className="font-semibold mb-2 text-sm sm:text-base">
-                  Responsive Design
-                </h3>
-                <p className="text-xs sm:text-sm opacity-80">
-                  Adapts beautifully across all screen sizes
-                </p>
-              </div>
-              <div
-                className={`p-3 sm:p-4 rounded-lg ${
-                  isDark ? "bg-gray-700" : "bg-gray-50"
-                }`}
-              >
-                <h3 className="font-semibold mb-2 text-sm sm:text-base">
-                  Performance Optimized
-                </h3>
-                <p className="text-xs sm:text-sm opacity-80">
-                  Fewer animations on mobile for smooth experience
-                </p>
-              </div>
-              <div
-                className={`p-3 sm:p-4 rounded-lg sm:col-span-2 lg:col-span-1 ${
-                  isDark ? "bg-gray-700" : "bg-gray-50"
-                }`}
-              >
-                <h3 className="font-semibold mb-2 text-sm sm:text-base">
-                  Touch Friendly
-                </h3>
-                <p className="text-xs sm:text-sm opacity-80">
-                  Large touch targets and mobile-optimized interactions
-                </p>
-              </div>
-            </div>
           </div>
         </main>
       </div>
-    </div>
+    </section>
+  );
+}
+
+// Steampunk Projects Section Component
+function SteampunkProjectsSection({ isDark }: { isDark: boolean }) {
+  const projects = [
+    {
+      id: 1,
+      title: "Steampunk Developer Portfolio",
+      description:
+        "This very portfolio you're viewing! Built with Next.js, Three.js steampunk animations, and Victorian-era industrial design. Features animated theme toggle with bats and butterflies.",
+      tech: ["Next.js", "Three.js", "Tailwind CSS", "TypeScript"],
+      image:
+        "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=400&h=300&fit=crop",
+      live: "#",
+      github: "#",
+      featured: true,
+    },
+    {
+      id: 2,
+      title: "Industrial Task Manager",
+      description:
+        "Steam-powered productivity application with mechanical interface elements and brass-themed user experience design.",
+      tech: ["React", "Node.js", "MongoDB", "Socket.io"],
+      image:
+        "https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?w=400&h=300&fit=crop",
+      live: "#",
+      github: "#",
+    },
+    {
+      id: 3,
+      title: "Clockwork E-Commerce",
+      description:
+        "Victorian-era inspired online marketplace with mechanical product displays and steam-driven checkout process.",
+      tech: ["Vue.js", "Express", "Stripe", "PostgreSQL"],
+      image:
+        "https://images.unsplash.com/photo-1563906267088-b029e7101114?w=400&h=300&fit=crop",
+      live: "#",
+      github: "#",
+    },
+    {
+      id: 4,
+      title: "Brass Weather Station",
+      description:
+        "Antique barometer-style weather application with mechanical gauge displays and copper-toned interface elements.",
+      tech: ["JavaScript", "Weather API", "Chart.js", "CSS3"],
+      image:
+        "https://images.unsplash.com/photo-1504608524841-42fe6f032b4b?w=400&h=300&fit=crop",
+      live: "#",
+      github: "#",
+    },
+    {
+      id: 5,
+      title: "Telegraph Chat System",
+      description:
+        "Real-time messaging platform designed like a Victorian telegraph system with morse code animations and vintage typography.",
+      tech: ["React", "Firebase", "WebRTC", "Framer Motion"],
+      image:
+        "https://images.unsplash.com/photo-1520637836862-4d197d17c68a?w=400&h=300&fit=crop",
+      live: "#",
+      github: "#",
+    },
+    {
+      id: 6,
+      title: "Mechanical Blog Engine",
+      description:
+        "Content management system with gear-driven navigation and steam-powered publishing workflow for technical writing.",
+      tech: ["Gatsby", "GraphQL", "Netlify CMS", "Styled Components"],
+      image:
+        "https://images.unsplash.com/photo-1486312338219-ce68e2c6b7d3?w=400&h=300&fit=crop",
+      live: "#",
+      github: "#",
+    },
+  ];
+
+  return (
+    <>
+      {/* Inject CSS */}
+      <style jsx>{`
+        /* STEAMPUNK COLORS */
+        :root {
+          --steampunk-copper: #8b4513;
+          --steampunk-brass: #cd853f;
+          --steampunk-border: #8b4513;
+          --font-great-vibes: "Great Vibes", cursive;
+          --font-playfair: "Playfair Display", serif;
+        }
+
+        /* Individual brass corner bolts */
+        .brass-bolt {
+          position: absolute;
+          width: 10px;
+          height: 10px;
+          border-radius: 50%;
+          background: radial-gradient(
+            circle,
+            #ffd700 0%,
+            #b8860b 60%,
+            #8b4513 100%
+          );
+          border: 1px solid #654321;
+          box-shadow: inset 1px 1px 2px rgba(255, 255, 255, 0.3),
+            inset -1px -1px 2px rgba(0, 0, 0, 0.5),
+            0 0 3px rgba(255, 215, 0, 0.4);
+          z-index: 10;
+        }
+
+        .bolt-top-left {
+          top: 8px;
+          left: 8px;
+        }
+        .bolt-top-right {
+          top: 8px;
+          right: 8px;
+        }
+        .bolt-bottom-left {
+          bottom: 8px;
+          left: 8px;
+        }
+        .bolt-bottom-right {
+          bottom: 8px;
+          right: 8px;
+        }
+
+        /* Light mode steampunk base */
+        .steampunk-base-light {
+          background: linear-gradient(135deg, #faf7f0 0%, #f5f5dc 100%);
+          border: 4px solid #4a4a4a;
+          border-radius: 15px;
+          position: relative;
+          overflow: hidden;
+          box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.15),
+            0 0 15px rgba(74, 74, 74, 0.3);
+        }
+
+        .steampunk-base-light::before {
+          content: "";
+          position: absolute;
+          top: 5px;
+          left: 5px;
+          right: 5px;
+          height: 30%;
+          background: linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.4) 0%,
+            transparent 100%
+          );
+          border-radius: 10px;
+          pointer-events: none;
+          z-index: 1;
+        }
+
+        /* Dark mode steampunk base */
+        .steampunk-base-dark {
+          background: linear-gradient(135deg, #2d1810 0%, #3c1810 100%);
+          border: 4px solid var(--steampunk-copper);
+          border-radius: 15px;
+          position: relative;
+          overflow: hidden;
+          box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8),
+            0 0 15px rgba(139, 69, 19, 0.4);
+        }
+
+        .steampunk-base-dark::before {
+          content: "";
+          position: absolute;
+          top: 5px;
+          left: 5px;
+          right: 5px;
+          height: 30%;
+          background: linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.08) 0%,
+            transparent 100%
+          );
+          border-radius: 10px;
+          pointer-events: none;
+          z-index: 1;
+        }
+
+        /* Featured project special border */
+        .featured-border {
+          border-color: #c0c0c0 !important;
+          box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.15),
+            0 0 20px rgba(192, 192, 192, 0.6) !important;
+        }
+
+        /* Hover effects */
+        .project-card:hover {
+          transform: translateY(-4px);
+          transition: all 0.3s ease;
+        }
+
+        .project-card:hover .steampunk-base-light,
+        .project-card:hover .steampunk-base-dark {
+          box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.9),
+            0 0 25px rgba(139, 69, 19, 0.6);
+        }
+      `}</style>
+
+      <section
+        className={`py-16 px-4 sm:px-6 lg:px-8 transition-colors duration-500 ${
+          isDark
+            ? "bg-gradient-to-b from-amber-950 to-red-950"
+            : "bg-gradient-to-b from-amber-50 to-orange-50"
+        }`}
+      >
+        <div className="max-w-7xl mx-auto">
+          {/* Section Header */}
+          <div className="text-center mb-16">
+            <h2
+              className={`
+              text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 transition-colors
+              ${isDark ? "text-amber-100" : "text-gray-900"}
+            `}
+              style={{ fontFamily: "var(--font-playfair)" }}
+            >
+              Mechanical Marvels
+            </h2>
+            <p
+              className={`
+              text-lg sm:text-xl max-w-3xl mx-auto leading-relaxed
+              ${isDark ? "text-amber-200" : "text-gray-700"}
+            `}
+            >
+              A collection of steam-powered applications and clockwork
+              contraptions, crafted with modern web technologies and Victorian
+              sensibilities
+            </p>
+          </div>
+
+          {/* Projects Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {projects.map((project) => (
+              <div
+                key={project.id}
+                className="project-card group cursor-pointer"
+              >
+                <div
+                  className={`
+                  ${isDark ? "steampunk-base-dark" : "steampunk-base-light"}
+                  ${project.featured ? "featured-border" : ""}
+                  p-6 h-full flex flex-col
+                `}
+                >
+                  {/* Brass Bolts */}
+                  <div className="brass-bolt bolt-top-left"></div>
+                  <div className="brass-bolt bolt-top-right"></div>
+                  <div className="brass-bolt bolt-bottom-left"></div>
+                  <div className="brass-bolt bolt-bottom-right"></div>
+
+                  {/* Featured Badge */}
+                  {project.featured && (
+                    <div className="absolute top-4 left-4 z-20">
+                      <span className="bg-gradient-to-r from-gray-700 to-gray-900 text-white px-3 py-1 rounded-full text-xs font-bold border border-gray-800">
+                        FEATURED CONTRAPTION
+                      </span>
+                    </div>
+                  )}
+
+                  <div className="relative z-10 h-full flex flex-col">
+                    {/* Project Image */}
+                    <div className="relative mb-4 overflow-hidden rounded-lg border-2 border-amber-700">
+                      <img
+                        src={project.image}
+                        alt={project.title}
+                        className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                    </div>
+
+                    {/* Project Title */}
+                    <h3
+                      className={`
+                      text-xl font-bold mb-3 leading-tight
+                      ${isDark ? "text-amber-100" : "text-gray-900"}
+                    `}
+                      style={{ fontFamily: "var(--font-playfair)" }}
+                    >
+                      {project.title}
+                    </h3>
+
+                    {/* Project Description */}
+                    <p
+                      className={`
+                      text-sm leading-relaxed mb-4 flex-grow
+                      ${isDark ? "text-amber-200" : "text-gray-700"}
+                    `}
+                    >
+                      {project.description}
+                    </p>
+
+                    {/* Tech Stack */}
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {project.tech.map((tech) => (
+                        <span
+                          key={tech}
+                          className={`
+                          px-2 py-1 rounded text-xs font-medium border
+                          ${
+                            isDark
+                              ? "bg-amber-900/50 text-amber-200 border-amber-700"
+                              : "bg-gray-100 text-gray-800 border-gray-300"
+                          }
+                        `}
+                        >
+                          {tech}
+                        </span>
+                      ))}
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex gap-3 mt-auto">
+                      <a
+                        href={project.live}
+                        className={`
+                        flex-1 text-center py-2 px-4 rounded-lg font-medium text-sm
+                        border-2 transition-all duration-200
+                        ${
+                          isDark
+                            ? "bg-amber-700 hover:bg-amber-600 text-amber-100 border-amber-600 hover:border-amber-500"
+                            : "bg-gray-800 hover:bg-black text-white border-gray-700 hover:border-black"
+                        }
+                      `}
+                      >
+                        View Project
+                      </a>
+                      <a
+                        href={project.github}
+                        className={`
+                        flex-1 text-center py-2 px-4 rounded-lg font-medium text-sm
+                        border-2 transition-all duration-200
+                        ${
+                          isDark
+                            ? "border-amber-600 text-amber-200 hover:bg-amber-900/30"
+                            : "border-gray-400 text-gray-700 hover:bg-gray-100"
+                        }
+                      `}
+                      >
+                        View Code
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    </>
+  );
+}
+
+// Main Page Component
+export default function HomePage() {
+  const [isDark, setIsDark] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
+
+  // Initialize theme from localStorage or system preference
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme");
+    const systemPrefersDark = window.matchMedia(
+      "(prefers-color-scheme: dark)"
+    ).matches;
+
+    const shouldBeDark =
+      savedTheme === "dark" || (!savedTheme && systemPrefersDark);
+    setIsDark(shouldBeDark);
+  }, []);
+
+  return (
+    <>
+      <ThemeToggle
+        isDark={isDark}
+        setIsDark={setIsDark}
+        isAnimating={isAnimating}
+        setIsAnimating={setIsAnimating}
+      />
+      <HeroSection isDark={isDark} />
+      <SteampunkProjectsSection isDark={isDark} />
+    </>
   );
 }
