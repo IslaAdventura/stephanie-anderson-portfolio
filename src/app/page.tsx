@@ -9,7 +9,7 @@ export default function AnimatedThemeToggle() {
   const sceneRef = useRef<THREE.Scene | null>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   const cameraRef = useRef<THREE.Camera | null>(null);
-  const animationIdRef = useRef<number>(null);
+  const animationIdRef = useRef<number | null>(null);
 
   // Initialize theme from localStorage or system preference
   useEffect(() => {
@@ -76,9 +76,13 @@ export default function AnimatedThemeToggle() {
     };
   }, []);
 
-  // Create bat geometry
+  // Create bat geometry - responsive sizing
   const createBat = (x: number, y: number) => {
     const batGroup = new THREE.Group();
+
+    // Scale based on screen size
+    const isMobile = window.innerWidth < 768;
+    const scaleFactor = isMobile ? 1.2 : 2;
 
     // Bat body (elongated using cylinder)
     const bodyGeometry = new THREE.CylinderGeometry(0.03, 0.02, 0.12, 8);
@@ -117,7 +121,7 @@ export default function AnimatedThemeToggle() {
 
     const leftWing = new THREE.Mesh(wingGeometry, wingMaterial);
     leftWing.position.set(-0.1, 0.02, 0);
-    leftWing.scale.set(1.5, 0.8, 1); // Make it more wing-like
+    leftWing.scale.set(1.5, 0.8, 1);
 
     const rightWing = new THREE.Mesh(wingGeometry, wingMaterial);
     rightWing.position.set(0.1, 0.02, 0);
@@ -125,15 +129,19 @@ export default function AnimatedThemeToggle() {
 
     batGroup.add(leftWing, rightWing);
 
-    // Scale the entire bat to make it bigger
-    batGroup.scale.set(2, 2, 2);
+    // Responsive scaling
+    batGroup.scale.set(scaleFactor, scaleFactor, scaleFactor);
     batGroup.position.set(x, y, 0);
     return batGroup;
   };
 
-  // Create butterfly geometry
+  // Create butterfly geometry - responsive sizing
   const createButterfly = (x: number, y: number) => {
     const butterflyGroup = new THREE.Group();
+
+    // Scale based on screen size
+    const isMobile = window.innerWidth < 768;
+    const scaleFactor = isMobile ? 0.8 : 1.2;
 
     // Butterfly body
     const bodyGeometry = new THREE.CylinderGeometry(0.01, 0.01, 0.1, 8);
@@ -144,10 +152,10 @@ export default function AnimatedThemeToggle() {
     // Butterfly wings
     const wingGeometry = new THREE.CircleGeometry(0.06, 8);
     const wingMaterials = [
-      new THREE.MeshBasicMaterial({ color: 0xffd700, opacity: 1 }), // Gold
-      new THREE.MeshBasicMaterial({ color: 0xff69b4, opacity: 1 }), // Pink
-      new THREE.MeshBasicMaterial({ color: 0x87ceeb, opacity: 1 }), // Sky blue
-      new THREE.MeshBasicMaterial({ color: 0xffa500, opacity: 1 }), // Orange
+      new THREE.MeshBasicMaterial({ color: 0xffd700, opacity: 1 }),
+      new THREE.MeshBasicMaterial({ color: 0xff69b4, opacity: 1 }),
+      new THREE.MeshBasicMaterial({ color: 0x87ceeb, opacity: 1 }),
+      new THREE.MeshBasicMaterial({ color: 0xffa500, opacity: 1 }),
     ];
 
     const wingMaterial =
@@ -175,6 +183,9 @@ export default function AnimatedThemeToggle() {
       bottomLeftWing,
       bottomRightWing
     );
+
+    // Responsive scaling
+    butterflyGroup.scale.set(scaleFactor, scaleFactor, scaleFactor);
     butterflyGroup.position.set(x, y, 0);
 
     return butterflyGroup;
@@ -189,7 +200,8 @@ export default function AnimatedThemeToggle() {
       velocity: THREE.Vector3;
       wingFlap: number;
     }> = [];
-    const numBats = 12;
+    const isMobile = window.innerWidth < 768;
+    const numBats = isMobile ? 8 : 12; // Fewer bats on mobile for performance
 
     // Convert button position to Three.js coordinates
     const buttonX =
@@ -200,7 +212,8 @@ export default function AnimatedThemeToggle() {
     for (let i = 0; i < numBats; i++) {
       const bat = createBat(buttonX * 2.5, buttonY * 2.5);
       const angle = (i / numBats) * Math.PI * 2;
-      const speed = 0.02 + Math.random() * 0.03;
+      const baseSpeed = isMobile ? 0.015 : 0.02;
+      const speed = baseSpeed + Math.random() * 0.03;
 
       const velocity = new THREE.Vector3(
         Math.cos(angle) * speed,
@@ -224,9 +237,8 @@ export default function AnimatedThemeToggle() {
         bat.wingFlap += 0.3;
         const flapAmount = Math.sin(bat.wingFlap) * 0.4;
         if (bat.mesh.children.length >= 6) {
-          // Animate the wing membranes (last two children)
-          const leftWing = bat.mesh.children[4]; // Left wing
-          const rightWing = bat.mesh.children[5]; // Right wing
+          const leftWing = bat.mesh.children[4];
+          const rightWing = bat.mesh.children[5];
           leftWing.rotation.z = flapAmount;
           rightWing.rotation.z = -flapAmount;
         }
@@ -264,7 +276,8 @@ export default function AnimatedThemeToggle() {
       flutter: number;
       age: number;
     }> = [];
-    const numButterflies = 8;
+    const isMobile = window.innerWidth < 768;
+    const numButterflies = isMobile ? 12 : 8;
 
     const buttonX =
       ((buttonRect.left + buttonRect.width / 2) / window.innerWidth) * 2 - 1;
@@ -274,7 +287,8 @@ export default function AnimatedThemeToggle() {
     for (let i = 0; i < numButterflies; i++) {
       const butterfly = createButterfly(buttonX * 2.5, buttonY * 2.5);
       const angle = (i / numButterflies) * Math.PI * 2 + Math.random() * 0.5;
-      const speed = 0.008 + Math.random() * 0.012;
+      const baseSpeed = isMobile ? 0.006 : 0.008;
+      const speed = baseSpeed + Math.random() * 0.012;
 
       const velocity = new THREE.Vector3(
         Math.cos(angle) * speed,
@@ -312,7 +326,6 @@ export default function AnimatedThemeToggle() {
         // Gentle fade and slow down
         butterfly.velocity.multiplyScalar(0.998);
         if (butterfly.age > 200) {
-          // Handle material fading
           butterfly.mesh.traverse((child) => {
             if (child instanceof THREE.Mesh && child.material) {
               const material = child.material as THREE.MeshBasicMaterial;
@@ -388,14 +401,16 @@ export default function AnimatedThemeToggle() {
       />
 
       {/* Main Content */}
-      <div className="relative z-20 p-8">
-        {/* Theme Toggle Button */}
-        <div className="fixed top-6 right-6 z-30">
+      <div className="relative z-20 p-4 sm:p-6 lg:p-8">
+        {/* Theme Toggle Button - Responsive */}
+        <div className="fixed top-3 right-3 sm:top-4 sm:right-4 md:top-6 md:right-6 z-30">
           <button
             onClick={handleToggle}
             disabled={isAnimating}
             className={`
-              relative px-6 py-3 rounded-full font-medium transition-all duration-300 shadow-lg
+              relative px-3 py-2 sm:px-4 sm:py-2 md:px-6 md:py-3 
+              text-sm sm:text-base 
+              rounded-full font-medium transition-all duration-300 shadow-lg
               ${
                 isDark
                   ? "bg-purple-900 text-yellow-100 hover:bg-purple-800 border-2 border-purple-700"
@@ -404,49 +419,110 @@ export default function AnimatedThemeToggle() {
               ${isAnimating ? "scale-110" : "hover:scale-105"}
             `}
           >
-            {isDark ? "🦋 Switch to Light" : "🦇 Switch to Dark"}
+            <span className="hidden sm:inline">
+              {isDark ? "🦋 Switch to Light" : "🦇 Switch to Dark"}
+            </span>
+            <span className="sm:hidden">{isDark ? "🦋" : "🦇"}</span>
           </button>
         </div>
 
-        {/* Sample Content */}
-        <main className="max-w-4xl mx-auto pt-20">
-          <h1
-            className={`text-5xl font-bold mb-4 transition-colors ${
-              isDark ? "text-white" : "text-gray-900"
-            }`}
-          >
-            Stephanie Anderson
-          </h1>
-          <p
-            className={`text-2xl mb-8 transition-colors ${
-              isDark ? "text-purple-300" : "text-blue-600"
-            }`}
-          >
-            Junior Developer
-          </p>
+        {/* Sample Content - Fully Responsive */}
+        <main className="max-w-7xl mx-auto pt-16 sm:pt-20 md:pt-24">
+          {/* Hero Section */}
+          <div className="text-center mb-8 sm:mb-12 lg:mb-16">
+            <h1
+              className={`
+              text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 
+              font-bold mb-2 sm:mb-4 transition-colors leading-tight
+              ${isDark ? "text-white" : "text-gray-900"}
+            `}
+            >
+              Stephanie Anderson
+            </h1>
+            <p
+              className={`
+              text-lg sm:text-xl md:text-2xl lg:text-3xl 
+              mb-4 sm:mb-6 lg:mb-8 transition-colors
+              ${isDark ? "text-purple-300" : "text-blue-600"}
+            `}
+            >
+              Junior Developer
+            </p>
+          </div>
 
+          {/* Main Content Card */}
           <div
-            className={`p-8 rounded-xl transition-all duration-500 ${
+            className={`
+            p-4 sm:p-6 lg:p-8 rounded-xl transition-all duration-500 
+            max-w-4xl mx-auto
+            ${
               isDark
                 ? "bg-gray-800 text-gray-200 shadow-2xl border border-gray-700"
                 : "bg-white text-gray-800 shadow-lg"
-            }`}
+            }
+          `}
           >
-            <h2 className="text-3xl font-semibold mb-4">Theme Toggle Demo</h2>
-            <p className="text-lg mb-4">
+            <h2 className="text-2xl sm:text-3xl font-semibold mb-3 sm:mb-4">
+              Theme Toggle Demo
+            </h2>
+            <p className="text-base sm:text-lg mb-3 sm:mb-4 leading-relaxed">
               Click the theme toggle button to see the magic happen!
-              {isDark
-                ? " Bats will dramatically explode from the button."
-                : " Gentle butterflies will float away."}
+              <span className="block sm:inline">
+                {isDark
+                  ? " Bats will dramatically explode from the button."
+                  : " Gentle butterflies will float away."}
+              </span>
             </p>
             <p
-              className={`text-sm ${
-                isDark ? "text-gray-400" : "text-gray-600"
-              }`}
+              className={`
+              text-sm sm:text-base leading-relaxed
+              ${isDark ? "text-gray-400" : "text-gray-600"}
+            `}
             >
-              This demo uses Three.js for smooth 3D animations and manual theme
-              switching.
+              This demo uses Three.js for smooth 3D animations that adapt to
+              your screen size. On mobile devices, fewer creatures spawn for
+              better performance.
             </p>
+
+            {/* Responsive Grid for Additional Content */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mt-6 sm:mt-8">
+              <div
+                className={`p-3 sm:p-4 rounded-lg ${
+                  isDark ? "bg-gray-700" : "bg-gray-50"
+                }`}
+              >
+                <h3 className="font-semibold mb-2 text-sm sm:text-base">
+                  Responsive Design
+                </h3>
+                <p className="text-xs sm:text-sm opacity-80">
+                  Adapts beautifully across all screen sizes
+                </p>
+              </div>
+              <div
+                className={`p-3 sm:p-4 rounded-lg ${
+                  isDark ? "bg-gray-700" : "bg-gray-50"
+                }`}
+              >
+                <h3 className="font-semibold mb-2 text-sm sm:text-base">
+                  Performance Optimized
+                </h3>
+                <p className="text-xs sm:text-sm opacity-80">
+                  Fewer animations on mobile for smooth experience
+                </p>
+              </div>
+              <div
+                className={`p-3 sm:p-4 rounded-lg sm:col-span-2 lg:col-span-1 ${
+                  isDark ? "bg-gray-700" : "bg-gray-50"
+                }`}
+              >
+                <h3 className="font-semibold mb-2 text-sm sm:text-base">
+                  Touch Friendly
+                </h3>
+                <p className="text-xs sm:text-sm opacity-80">
+                  Large touch targets and mobile-optimized interactions
+                </p>
+              </div>
+            </div>
           </div>
         </main>
       </div>
