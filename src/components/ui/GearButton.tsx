@@ -25,14 +25,9 @@ export default function GearButton({
       onClick={handleClick}
       disabled={isAnimating}
       className={`
-        relative w-16 h-16 md:w-20 md:h-20 rounded-full transition-all duration-300 overflow-hidden
-        ${
-          isDark
-            ? "bg-gradient-to-br from-amber-900 to-red-900 border-4 border-amber-700 shadow-lg shadow-amber-900/50"
-            : "bg-gradient-to-br from-gray-100 to-gray-300 border-4 border-gray-500 shadow-lg shadow-gray-400/50"
-        }
-        ${isAnimating ? "scale-110" : "hover:scale-105"}
-      `}
+    gear-button relative w-16 h-16 md:w-20 md:h-20 rounded-full transition-all duration-300 overflow-hidden
+    ${isAnimating ? "gear-animating" : ""}
+  `}
     >
       {/* Single Hollow Gear */}
       <div className="absolute inset-0 flex items-center justify-center">

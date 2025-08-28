@@ -1,1 +1,587 @@
 @import "tailwindcss";
+
+/* ============================================
+   COLOR THEMES
+   ============================================ */
+
+/* Light mode colors */
+.theme-light {
+  --hero-bg: linear-gradient(to bottom, #fefcf0, #fef7e0);
+  --projects-bg: linear-gradient(to bottom, #fef7e0, #fed7aa);
+}
+
+/* Dark mode colors */
+.theme-dark {
+  --hero-bg: #020015;
+  --projects-bg: #020015;
+}
+
+/* Section backgrounds */
+.hero-section {
+  background: var(--hero-bg);
+}
+
+.projects-section {
+  background: var(--projects-bg);
+}
+
+/* ============================================
+   GEAR BUTTON STYLES
+   ============================================ */
+
+/* Base gear button styles */
+.gear-button {
+  transition: all 0.3s ease;
+}
+
+/* Light theme gear button */
+.theme-light .gear-button {
+  background: linear-gradient(to bottom right, #f3f4f6, #d1d5db);
+  border: 4px solid #6b7280;
+  box-shadow: 0 10px 15px -3px rgba(107, 114, 128, 0.5);
+}
+
+/* Dark theme gear button */
+.theme-dark .gear-button {
+  background: #020015;
+  border: 4px solid #020015;
+  box-shadow: 0 10px 15px -3px #020015;
+}
+
+/* Hover state */
+.gear-button:not(:disabled):hover {
+  transform: scale(1.25);
+}
+
+/* Animating state */
+.gear-button.gear-animating {
+  transform: scale(1.1);
+}
+
+/* Disabled state */
+.gear-button:disabled {
+  cursor: not-allowed;
+}
+
+/* ============================================
+   STEAMPUNK DESIGN SYSTEM
+   ============================================ */
+
+/* Steampunk color variables */
+:root {
+  --steampunk-copper: #8b4513;
+  --steampunk-brass: #cd853f;
+  --steampunk-silver: #c0c0c0;
+  --steampunk-border: #8b4513;
+  --font-great-vibes: "Great Vibes", cursive;
+  --font-playfair: "Playfair Display", serif;
+}
+
+/* ============================================
+   BRASS BOLTS
+   ============================================ */
+
+/* Individual brass corner bolts */
+.brass-bolt {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #ffd700 0%, #b8860b 60%, #8b4513 100%);
+  border: 1px solid #654321;
+  box-shadow: inset 1px 1px 2px rgba(255, 255, 255, 0.3),
+    inset -1px -1px 2px rgba(0, 0, 0, 0.5), 0 0 3px rgba(255, 215, 0, 0.4);
+  z-index: 10;
+}
+
+.bolt-top-left {
+  top: 8px;
+  left: 8px;
+}
+
+.bolt-top-right {
+  top: 8px;
+  right: 8px;
+}
+
+.bolt-bottom-left {
+  bottom: 8px;
+  left: 8px;
+}
+
+.bolt-bottom-right {
+  bottom: 8px;
+  right: 8px;
+}
+
+/* ============================================
+   STEAMPUNK CARD BASES
+   ============================================ */
+
+/* Light mode steampunk base */
+.steampunk-base-light {
+  background: linear-gradient(135deg, #faf7f0 0%, #f5f5dc 100%);
+  border: 4px solid #4a4a4a;
+  border-radius: 15px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.15), 0 0 15px rgba(74, 74, 74, 0.3);
+}
+
+.steampunk-base-light::before {
+  content: "";
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  right: 5px;
+  height: 30%;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.4) 0%,
+    transparent 100%
+  );
+  border-radius: 10px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Dark mode steampunk base - UPDATED colors */
+.steampunk-base-dark {
+  background: linear-gradient(135deg 0%, 100%);
+  border: 4px solid #4a4a8e;
+  border-radius: 15px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8),
+    0 0 15px rgba(122, 122, 224, 0.4);
+}
+
+.steampunk-base-dark::before {
+  content: "";
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  right: 5px;
+  height: 30%;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    transparent 100%
+  );
+  border-radius: 10px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Featured project special border */
+.featured-border {
+  border-color: var(--steampunk-silver) !important;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.15),
+    0 0 20px rgba(192, 192, 192, 0.6) !important;
+}
+.featured-badge {
+  background: linear-gradient(
+    145deg,
+    #4a7c7e,
+    /* Teal patina */ #5a6d6e,
+    /* Weathered gray-green */ #3d4f50,
+    /* Deep oxidized */ #2c3e3f /* Dark tarnish */
+  );
+  border-color: #2c3e3f !important;
+  color: rgb(255, 206, 173);
+  font-family: Merriweather;
+  font-weight: 600;
+  text-shadow: 0 1px 3px black;
+  box-shadow: inset 0 2px 4px rgba(127, 179, 181, 0.3),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.4), 0 4px 8px rgba(44, 62, 63, 0.4);
+}
+
+/* ============================================
+   HERO SECTION STYLES
+   ============================================ */
+/* Hero main heading */
+.theme-light .steampunk-heading-xl {
+  color: #000000;
+}
+.theme-dark .steampunk-heading-xl {
+  color: #ff9a56;
+}
+
+/* Hero subtitle */
+.theme-light .hero-subtitle {
+  color: #5a6d6e;
+  font-family: "Playfair Display", serif;
+  font-weight: 600;
+}
+
+.theme-dark .hero-subtitle {
+  color: #fef7e0;
+  font-family: "Playfair Display", serif;
+  font-weight: 600;
+}
+
+/* Hero card container */
+.theme-light .hero-card {
+  background-color: #4a7c73;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8), 0 0 15px rgba(76, 92, 93, 0.4);
+  border: 4px solid #2c3e3f !important;
+}
+
+.theme-dark .hero-card {
+  background: linear-gradient(135deg 0%, 100%);
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8),
+    0 0 15px rgba(122, 122, 224, 0.4);
+  border: 4px solid #4a4a8e;
+  border-radius: 15px;
+}
+
+/* Hero card title */
+.theme-light .hero-card-title {
+  color: #fef7e0;
+  font-family: "Playfair Display", serif;
+  font-weight: 700;
+  text-shadow: 0 1px 3px black;
+}
+
+.theme-dark .hero-card-title {
+  color: #ff9a56;
+  font-family: "Playfair Display", serif;
+  font-weight: 700;
+}
+
+/* Hero card main text */
+.theme-light .hero-card-text {
+  color: #fef7e0;
+  font-family: Merriweather;
+  font-weight: 600;
+  text-shadow: 0 1px 3px black;
+}
+
+.theme-dark .hero-card-text {
+  color: #fef7e0;
+  font-family: Merriweather;
+  font-weight: 600;
+}
+
+/* Hero card subtext */
+.theme-light .hero-card-subtext {
+  color: #fef7e0;
+  font-family: Merriweather;
+  font-weight: 600;
+  text-shadow: 0 1px 3px black;
+}
+
+.theme-dark .hero-card-subtext {
+  font-family: Merriweather;
+  font-weight: 600;
+  color: #fef7e0;
+}
+
+/* ============================================
+   PROJECT CARD INTERACTIONS
+   ============================================ */
+
+.project-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  font-family: Merriweather;
+  font-weight: 600;
+}
+
+.project-card:hover {
+  transform: translateY(-4px);
+}
+
+.project-card:hover .steampunk-base-light {
+  box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.2), 0 0 25px rgba(74, 74, 74, 0.5);
+}
+
+.project-card:hover .steampunk-base-dark {
+  box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.9), 0 0 25px rgba(74, 74, 142, 0.6);
+}
+
+/* ============================================
+   PROJECTS SECTION STYLES
+   ============================================ */
+
+/* Projects section main heading */
+.theme-light .projects-section .steampunk-heading {
+  color: #000000;
+}
+
+.theme-dark .projects-section .steampunk-heading {
+  color: #ff9a56;
+}
+
+/* Projects section description */
+.theme-light .projects-description {
+  color: #000000;
+  font-family: Merriweather;
+  font-weight: 600;
+}
+
+.theme-dark .projects-description {
+  color: #fef7e0;
+  font-family: Merriweather;
+  font-weight: 600;
+}
+
+/* Project card title colors */
+.theme-light .project-title {
+  color: #000000;
+}
+
+.theme-dark .project-title {
+  color: #ff9a56;
+}
+
+/* Project card description */
+.theme-light .project-description {
+  color: #000000;
+}
+
+.theme-dark .project-description {
+  color: #fef7e0;
+}
+
+/* ============================================
+   TECH TAGS
+   ============================================ */
+
+.theme-light .tech-tag {
+  background: linear-gradient(
+    145deg,
+    #616161,
+    /* Light steel */ #424242,
+    /* Medium gray */ #212121,
+    /* Dark steel */ #0d0d0d /* Almost black */
+  );
+  border-color: #1a1a1a !important;
+  box-shadow: inset 0 2px 3px rgba(255, 255, 255, 0.1),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.7), 0 4px 8px rgba(0, 0, 0, 0.5);
+  color: #ffffff;
+  text-shadow: 0 1px 3px #000000;
+  font-family: Merriweather;
+  font-weight: 600;
+}
+
+.theme-dark .tech-tag {
+  background: linear-gradient(
+    135deg,
+    #8d5e4f,
+    /* Rose bronze */ #6d4c41,
+    #5d4037,
+    #4e342e
+  );
+  border-color: #a1887f !important;
+  color: #ffffff;
+  text-shadow: 0 1px 3px #000000;
+  box-shadow: inset 0 1px 2px rgba(255, 204, 188, 0.25),
+    0 1px 3px rgba(0, 0, 0, 0.4);
+  font-family: Merriweather;
+  font-weight: 600;
+}
+
+/* ============================================
+   METALLIC COPPER BUTTONS - Visual styling only
+   ============================================ */
+
+.copper-button {
+  /* Metallic copper gradient */
+  background: linear-gradient(
+    135deg,
+    #ff9a56,
+    /* Hot copper */ #d4864a,
+    #b87333,
+    #8b4513,
+    #571002 /* Almost burnt edge */
+  );
+
+  /* Border and shadows for depth */
+  border-color: #8b4513 !important;
+  box-shadow: inset 0 2px 4px rgba(255, 220, 177, 0.3),
+    /* Warmer highlight */ inset 0 -3px 6px rgba(101, 67, 33, 0.4),
+    /* Deeper shadow */ 0 4px 8px rgba(139, 69, 19, 0.4),
+    0 1px 2px rgba(0, 0, 0, 0.2); /* Extra depth */
+
+  /* Text styling */
+  color: #ffffff;
+  font-family: Merriweather;
+  font-weight: 600;
+  text-shadow: 0 1px 3px black;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Metallic shine animation */
+.copper-button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  transition: left 0.5s ease;
+}
+
+.copper-button:hover::before {
+  left: 100%;
+}
+
+/* Hover state */
+.copper-button:hover {
+  background: linear-gradient(145deg, #cd853f, #a0522d);
+  box-shadow: inset 0 2px 5px rgba(255, 255, 255, 0.977),
+    inset 0 -2px 5px rgba(0, 0, 0, 0.4), 0 6px 12px rgba(139, 69, 19, 0.5);
+  transform: translateY(-1px);
+}
+
+/* Secondary copper button variant */
+.copper-button-secondary {
+  background: linear-gradient(
+    145deg,
+    #4a7c7e,
+    /* Teal patina */ #5a6d6e,
+    /* Weathered gray-green */ #3d4f50,
+    /* Deep oxidized */ #2c3e3f /* Dark tarnish */
+  );
+  border-color: #2c3e3f !important;
+  color: #ffffff;
+  font-family: Merriweather;
+  font-weight: 600;
+  text-shadow: 0 1px 3px black;
+  box-shadow: inset 0 2px 4px rgba(127, 179, 181, 0.3),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.4), 0 4px 8px rgba(44, 62, 63, 0.4);
+}
+
+.copper-button-secondary:hover {
+  background: linear-gradient(145deg, #5a8c8e, #6a7d7e, #4d5f60, #3c4e4f);
+}
+
+/* ============================================
+   TYPOGRAPHY
+   ============================================ */
+
+/* Add Google Fonts import if needed */
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Great+Vibes&display=swap");
+
+/* Heading styles with Playfair Display */
+.steampunk-heading {
+  font-family: "Playfair Display", serif;
+  font-weight: 700;
+}
+
+.steampunk-heading-xl {
+  font-family: "Playfair Display", serif;
+  font-weight: 900;
+}
+
+/* Decorative text with Great Vibes */
+.steampunk-decorative {
+  font-family: "Great Vibes", cursive;
+  font-weight: 400;
+}
+
+/* ============================================
+   HERO SECTION ANIMATIONS
+   ============================================ */
+
+/* Balloon and airship animations */
+@keyframes balloonDrift {
+  0% {
+    transform: translateX(0px) translateY(0px);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.8;
+  }
+  90% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateX(calc(100vw + 250px)) translateY(-30px);
+    opacity: 0;
+  }
+}
+
+@keyframes airshipDrift1 {
+  0% {
+    transform: translateX(0px) translateY(0px);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.6;
+  }
+  85% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateX(calc(100vw + 150px)) translateY(-20px);
+    opacity: 0;
+  }
+}
+
+@keyframes airshipDrift2 {
+  0% {
+    transform: translateX(0px) translateY(0px);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.5;
+  }
+  80% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateX(calc(100vw + 100px)) translateY(15px);
+    opacity: 0;
+  }
+}
+
+@keyframes airshipDrift3 {
+  0% {
+    transform: translateX(-100px) translateY(0px);
+    opacity: 0;
+  }
+  25% {
+    opacity: 0.4;
+  }
+  75% {
+    opacity: 0.4;
+  }
+  100% {
+    transform: translateX(calc(100vw + 100px)) translateY(-10px);
+    opacity: 0;
+  }
+}
+
+@keyframes simpleMove {
+  0% {
+    left: -100px;
+  }
+  100% {
+    left: calc(100vw + 100px);
+  }
+}
+
+/* ============================================
+   RESPONSIVE UTILITIES
+   ============================================ */
+
+/* Mobile-specific adjustments */
+@media (max-width: 768px) {
+  .brass-bolt {
+    width: 8px;
+    height: 8px;
+  }
+
+  .steampunk-base-light,
+  .steampunk-base-dark {
+    border-width: 3px;
+  }
+}
