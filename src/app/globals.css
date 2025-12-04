@@ -381,6 +381,22 @@
   font-weight: 600;
 }
 
+/* Rose Gold Bronze - base */
+.theme-dark .tech-tag:nth-child(odd) {
+  background: linear-gradient(135deg, #8d5e4f, #6d4c41, #5d4037, #4e342e);
+}
+
+/* Slightly cooler variant for alternating tags */
+.theme-dark .tech-tag:nth-child(even) {
+  background: linear-gradient(
+    135deg,
+    #7d5447,
+    /* Slightly less pink */ #6d4c41,
+    #5d4037,
+    #3e2723
+  );
+}
+
 /* ============================================
    METALLIC COPPER BUTTONS - Visual styling only
    ============================================ */
